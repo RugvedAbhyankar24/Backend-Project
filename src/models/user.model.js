@@ -1,4 +1,4 @@
-import mongoose,{Schema, mongo} from "mongoose";
+import mongoose,{Schema} from "mongoose";
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 
@@ -32,15 +32,15 @@ const userSchema= new Schema(
         coverImage:{
             type:String, //extracted from cloud
         },
-        watchhistory:[{
+        watchHistory:[{
             type: Schema.Types.ObjectId,
-            ref: "video"
+            ref: "Video"
         }],
         password:{
             type:String,
             required:[true, 'Password is required']
         },
-        refreshtoken:{
+        refreshToken:{
             type:String
         }
     },{timestamps:true}
@@ -53,16 +53,17 @@ userSchema.pre("save", async function(next){
     next()
 })
 
-userSchema.methods.isPasswordCorrect=async function(password){
-    return await bcrypt.compare(password,this.password)
+userSchema.methods.isPasswordCorrect = async function(password){
+    return await bcrypt.compare(password, this.password)
 }
 
-userSchema.methods.generatedAccessToken= function(){
-    jwt.sign({
+userSchema.methods.generateAccessToken= function(){
+    return jwt.sign(
+    {
         _id:this._id,
-        username:this.username,
         email:this.email,
-        fullName:this.fullName,
+        username:this.username,
+        fullName:this.fullName
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
@@ -70,13 +71,9 @@ userSchema.methods.generatedAccessToken= function(){
     }
 )
 }
-userSchema.methods.generatedRefreshToken= function(){
-    userSchema.methods.generatedAccessToken= function(){
+userSchema.methods.generateRefreshToken= function(){
      return  jwt.sign({
             _id:this._id,
-            username:this.username,
-            email:this.email,
-            fullName:this.fullName,
         },
         process.env.REFRESH_TOKEN_SECRET,
         {
@@ -84,5 +81,5 @@ userSchema.methods.generatedRefreshToken= function(){
         }
     )
     }
-}
+
 export const User= mongoose.model("User",userSchema)
