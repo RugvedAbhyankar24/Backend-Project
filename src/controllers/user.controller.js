@@ -6,19 +6,20 @@ import {ApiResponse} from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose";
 
-const generatedAccessTokenAndRefreshToken = async(userId)=>{
-    try{
+const generatedAccessTokenAndRefreshToken = async(userId) =>{
+    try {
         const user = await User.findById(userId)
-        const accessToken= user.generateAccessToken()
-        const refreshToken=user.generateRefreshToken()
+        const accessToken = user.generateAccessToken()
+        const refreshToken = user.generateRefreshToken()
 
-        user.refreshToken= refreshToken
-        await user.save({validateBeforeSave: false})
+        user.refreshToken = refreshToken
+        await user.save({ validateBeforeSave: false })
 
-        return{accessToken,refreshToken}
+        return {accessToken, refreshToken}
 
-    }catch(error){
-        throw new ApiError(500,"Something went wrong generating refresh and access tokens")
+
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while generating referesh and access token")
     }
 }
 const registerUser = asyncHandler (async(req,res)=>{
@@ -68,7 +69,7 @@ const avatarLocalPath = req.files?.avatar[0]?.path;
 //Above can also be checked using normal if case array classic method
 
 let coverImageLocalPath;
-if(req.files &&Array.isArray(req.files.coverImage)&& req.files.coverImage.length>0){
+if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length>0){
     coverImageLocalPath=req.files.coverImage[0].path
 }
 if (!avatarLocalPath){
